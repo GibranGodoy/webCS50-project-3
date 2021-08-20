@@ -1,0 +1,29 @@
+{% extends "orders/base.html" %}
+
+{% block body%}
+    <div id="my_orders_container" class="w-50 mx-auto pt-5 list-group">
+        <div class="text-left pr-3">
+            <ul>
+                {% for number in All_orders%}
+                    <a href="{% url 'my_orders' number.order_number %}"><li class="list-group-item bg-dark text-light"><span>Order: {{number.order_number}}</span><span class="float-right">Status: <span class="text-warning">{{number.status}}</span></span></li></a>
+                {% endfor %}
+            </ul>
+        </div>
+        <ul>
+            <hr class="bg-warning">
+            {% for check_cat in Checkout_category %}
+                <li class="text-warning text-right pr-3 list-group-item bg-dark">{{check_cat|cut:"("|cut:")"|cut:","|cut:"'"}}</li>
+                {% for row in Checkout %}
+                    {% if row.category == check_cat|cut:"("|cut:")"|cut:","|cut:"'"  %}
+                        <li class="list-group-item bg-dark pr-3 text-right">{{row}}&nbsp;</li>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %} 
+            <hr class="bg-warning">
+            <li class="list-group-item bg-dark text-info text-right pr-3"><h1><small class="text-white">Total</small> ${{Total|floatformat:2}}</h1></li>
+        </ul>
+        {% if Status == 'On course' and Total %}
+            <a id="confirm_order"  href="{% url 'send' Order_number %}"><div class="bg-warning w-100 text-center text-white"><h3 class="p-3">Confirm</h3></div></a>
+        {% endif %}
+    </div>
+{% endblock %}

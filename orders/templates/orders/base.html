@@ -1,0 +1,137 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+	<link rel="stylesheet" href="{% static 'orders/style.css' %}">
+	<!-- <script href="{% static 'orders/ch.js' %}"></script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<title>CS50 | Project 3</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolling-navbar">
+		<div class="container">
+			<a class="navbar-brand" href="#">
+				<strong>PIZZA POP</strong>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-7" aria-controls="navbarSupportedContent-7" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent-7">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a href="{% url 'index' %}" class="nav-link">Home
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+					{% if Category %}
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								{{ user.username }}
+							</a>
+							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+								{% if user.is_superuser %}
+									<a href="{% url 'orders_manager' user Order_number %}" class="dropdown-item">Orders manager</a>
+								{% endif %}
+								{% if not user.is_superuser %}
+									<a href="{% url 'my_orders' Order_number %}" class="dropdown-item">My orders</a>
+								{% endif %}
+								<div class="dropdown-divider"></div>
+								<a href="{% url 'logout' %}" class="dropdown-item">Log out</a>
+							</div>
+						</li>
+					{% endif %}
+					{% if not Category %}
+						<li class="nav-item">
+							<a href="{% url 'login' %}" class="nav-link">Log in
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{% url 'signin' %}" class="nav-link">Sign in
+							</a>
+						</li>
+					{% endif %}
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="view">
+		<div class="mask rgba-gradient d-flex justify-content-center align-items-center">
+			<div class="container-fluid">
+				<div id="window" class="row">
+					{% if Category %}
+						<nav id="sidebar" class="col-md-2 d-none d-md-block bg-light sidebar mt-5">
+							<div class="sidebar-sticky">
+								<ul class="nav flex-column">
+									<li class="nav-item">
+										{% for category in Category %}
+											<h3><a id="sidemenu" href="{% url 'menu' category %}" class="nav-link font-weight-bold">{{ category }}</a>
+											</h3>
+										{% endfor %}
+									</li>
+								</ul>
+							</div>
+						</nav>
+					{% endif %}
+					<main role="main" class="col-md-6 ml-sm-auto col-lg-10 px-4 pt-5 text-light">
+						{% block body %}
+						{% endblock %}
+					</main>
+					<div id="checkout" class="col-md-4 ml-sm-auto col-lg-2 list-group text-right mt-5 pt-5">
+						{% if Category %}
+							<h3 class="text-right text-light pr-3">Checkout</h3>
+							<ul>
+								<hr class="bg-warning">
+								{% for check_cat in Checkout_category %}
+									<li class="text-warning text-right pr-3" style="font-size: 24px;">
+										{{ check_cat|cut:"("|cut:")"|cut:","|cut:"'"}}
+									</li>
+									{% for row in Checkout %}
+										{% if row.category == check_cat|cut:"("|cut:")"|cut:","|cut:"'" %}
+											<li class="text-light pr-3" style="font-size: 13px;">{{ row }}
+												
+												<a href="{% url 'delete' row.category row.name row.price %}"><i class="material-icons md-light">clear</i></a>
+												
+											</li>
+										{% endif %}
+									{% endfor %}
+								{% endfor %}
+								<hr class="bg-warning">
+								<li class="text-warning text-right pr-3">
+									<h1>
+										<small class="text-white">Total</small> ${{ Total|floatformat:2 }}
+									</h1>
+								</li>
+							</ul>
+							<a id="place_order" href="{% url 'my_orders' Order_number %}">
+								<div class="bg-warning w-50 rounded p-2 ml-auto mr-3 text-center text-white">
+									<h4 class="text-light">Order</h4>
+								</div>
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+
+		      var height = $(window).height();
+
+		      $('#window').height(height);
+		});
+
+	</script>
+</body>
+</html>
